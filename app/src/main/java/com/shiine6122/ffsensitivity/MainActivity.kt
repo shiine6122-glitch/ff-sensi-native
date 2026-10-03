@@ -25,14 +25,12 @@ class MainActivity : AppCompatActivity() {
         webView = WebView(this)
         setContentView(webView)
 
-        // Cấu hình WebView
         webView.settings.javaScriptEnabled = true
         webView.settings.domStorageEnabled = true
         webView.settings.allowFileAccess = true
         webView.settings.allowContentAccess = true
         webView.addJavascriptInterface(Bridge(), "AndroidBridge")
 
-        // Cấu hình để WebView mở được trình chọn file (video)
         webView.webChromeClient = object : android.webkit.WebChromeClient() {
             override fun onShowFileChooser(
                 webView: WebView?,
@@ -41,18 +39,12 @@ class MainActivity : AppCompatActivity() {
             ): Boolean {
                 pendingCallback = filePathCallback
                 val intent = fileChooserParams?.createIntent()
-                try {
-                    startActivityForResult(intent!!, 100)
-                } catch (e: Exception) {
-                    pendingCallback = null
-                    return false
-                }
+                try { startActivityForResult(intent!!, 100) } catch (e: Exception) { pendingCallback = null; return false }
                 return true
             }
         }
 
         webView.loadUrl("file:///android_asset/index.html")
-
         createChannel()
 
         if (Build.VERSION.SDK_INT >= 33) {
@@ -87,9 +79,7 @@ class MainActivity : AppCompatActivity() {
                     runOnUiThread {
                         webView.evaluateJavascript("onVideoSaved('file://${file.absolutePath}')", null)
                     }
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                }
+                } catch (e: Exception) { e.printStackTrace() }
             }
         }
     }
@@ -117,33 +107,15 @@ class MainActivity : AppCompatActivity() {
         return String.format(java.util.Locale.US, "%.4f", if (ds > 3.5) 3.5 else ds)
     }
 
-    // ===== KIỂM TRA GAME ĐÃ CÀI CHƯA =====
-    private fun isGameInstalled(packageName: String): Boolean {
-        return try {
-            packageManager.getPackageInfo(packageName, 0)
-            true
-        } catch (e: PackageManager.NameNotFoundException) {
-            false
-        }
-    }
-
-    // ===== CHẠY SCRIPT SHELL =====
+    // ===== ĐÃ BỎ CHECK GAME - Cứ gửi lệnh, máy tự báo lỗi =====
     private fun runShell(sens: Int, gamePackage: String) {
-        // BƯỚC 1: Kiểm tra Shizuku
         if (Shizuku.checkSelfPermission() != PackageManager.PERMISSION_GRANTED) {
             runOnUiThread { webView.evaluateJavascript("onApplyFail('shizuku_denied');", null) }
             return
         }
 
-        // BƯỚC 2: Kiểm tra game đã cài chưa
-        if (!isGameInstalled(gamePackage)) {
-            runOnUiThread { webView.evaluateJavascript("onApplyFail('game_not_installed');", null) }
-            return
-        }
-
         val ds = calcDS(sens)
 
-        // Script shell có lưu lại exit code để kiểm tra
         val script = """
 settings put system touchboost 1
 settings put system touch_prediction 1
@@ -169,9 +141,7 @@ HZ=${'$'}(dumpsys display 2>/dev/null | grep -oE "vsyncRate [0-9]+" | head -1 | 
 cmd game set --mode 2 --downscale $ds --fps ${'$'}HZ ${'$'}gamePackage > /dev/null 2>&1
 GAME_EXIT=${'$'}?
 cmd power set-fixed-performance-mode-enabled true > /dev/null 2>&1
-POWER_EXIT=${'$'}?
 echo "GAME_EXIT=${'$'}GAME_EXIT"
-echo "POWER_EXIT=${'$'}POWER_EXIT"
         """.trimIndent()
 
         try {
@@ -183,17 +153,13 @@ echo "POWER_EXIT=${'$'}POWER_EXIT"
             p.waitFor()
 
             val output = sb.toString()
-
-            // BƯỚC 3: Kiểm tra exit code - nếu khác 0 tức là lệnh thất bại
             val gameExit = Regex("GAME_EXIT=(\\d+)").find(output)?.groupValues?.get(1)?.toIntOrNull() ?: 1
 
             runOnUiThread {
                 if (gameExit == 0) {
-                    // Thành công THẬT SỰ
                     notify(sens)
                     webView.evaluateJavascript("onApplySuccess();", null)
                 } else {
-                    // Thất bại - máy không hỗ trợ lệnh
                     webView.evaluateJavascript("onApplyFail('cmd_failed');", null)
                 }
             }
@@ -218,11 +184,6 @@ echo "POWER_EXIT=${'$'}POWER_EXIT"
         @JavascriptInterface
         fun checkShizukuPermission(): Boolean {
             return Shizuku.checkSelfPermission() == PackageManager.PERMISSION_GRANTED
-        }
-
-        @JavascriptInterface
-        fun isGameInstalled(packageName: String): Boolean {
-            return this@MainActivity.isGameInstalled(packageName)
         }
 
         @JavascriptInterface
