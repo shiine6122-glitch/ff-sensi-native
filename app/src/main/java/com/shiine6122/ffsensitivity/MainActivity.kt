@@ -32,7 +32,7 @@ class MainActivity : AppCompatActivity() {
         webView.settings.allowContentAccess = true
         webView.addJavascriptInterface(Bridge(), "AndroidBridge")
 
-        // Cấu hình để WebView có thể mở trình chọn file (video)
+        // Cấu hình để WebView mở được trình chọn file (video)
         webView.webChromeClient = object : android.webkit.WebChromeClient() {
             override fun onShowFileChooser(
                 webView: WebView?,
@@ -53,23 +53,19 @@ class MainActivity : AppCompatActivity() {
 
         webView.loadUrl("file:///android_asset/index.html")
 
-        // Tạo kênh thông báo
         createChannel()
 
-        // Yêu cầu quyền thông báo (Android 13+)
         if (Build.VERSION.SDK_INT >= 33) {
             if (checkSelfPermission("android.permission.POST_NOTIFICATIONS") != PackageManager.PERMISSION_GRANTED) {
                 requestPermissions(arrayOf("android.permission.POST_NOTIFICATIONS"), NOTIF_CODE)
             }
         }
 
-        // Yêu cầu quyền Shizuku khi mở app
         if (Shizuku.checkSelfPermission() != PackageManager.PERMISSION_GRANTED) {
             Shizuku.requestPermission(SHIZUKU_CODE)
         }
     }
 
-    // Xử lý kết quả sau khi chọn video
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: android.content.Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == 100) {
@@ -98,7 +94,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    // Hàm tạo kênh thông báo
     private fun createChannel() {
         if (Build.VERSION.SDK_INT >= 26) {
             val ch = NotificationChannel(CHANNEL, "FF Sensitivity", NotificationManager.IMPORTANCE_DEFAULT)
@@ -106,7 +101,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    // Hàm gửi thông báo
     private fun notify(sens: Int) {
         val n = NotificationCompat.Builder(this, CHANNEL)
             .setSmallIcon(android.R.drawable.ic_dialog_info)
@@ -116,7 +110,6 @@ class MainActivity : AppCompatActivity() {
         (getSystemService(NOTIFICATION_SERVICE) as NotificationManager).notify(1, n)
     }
 
-    // Hàm tính toán Downscale theo công thức
     private fun calcDS(sens: Int): String {
         if (sens <= 200) return "1.0000"
         val steps = (sens - 200).toDouble() / 10
@@ -124,16 +117,33 @@ class MainActivity : AppCompatActivity() {
         return String.format(java.util.Locale.US, "%.4f", if (ds > 3.5) 3.5 else ds)
     }
 
-    // Hàm chạy Script Shell thông qua Shizuku
+    // ===== KIỂM TRA GAME ĐÃ CÀI CHƯA =====
+    private fun isGameInstalled(packageName: String): Boolean {
+        return try {
+            packageManager.getPackageInfo(packageName, 0)
+            true
+        } catch (e: PackageManager.NameNotFoundException) {
+            false
+        }
+    }
+
+    // ===== CHẠY SCRIPT SHELL =====
     private fun runShell(sens: Int, gamePackage: String) {
+        // BƯỚC 1: Kiểm tra Shizuku
         if (Shizuku.checkSelfPermission() != PackageManager.PERMISSION_GRANTED) {
-            runOnUiThread { webView.evaluateJavascript("alert('Chưa cấp quyền Shizuku!');", null) }
+            runOnUiThread { webView.evaluateJavascript("onApplyFail('shizuku_denied');", null) }
+            return
+        }
+
+        // BƯỚC 2: Kiểm tra game đã cài chưa
+        if (!isGameInstalled(gamePackage)) {
+            runOnUiThread { webView.evaluateJavascript("onApplyFail('game_not_installed');", null) }
             return
         }
 
         val ds = calcDS(sens)
 
-        // Đoạn Script Shell của bạn (đã thêm pointer_speed)
+        // Script shell có lưu lại exit code để kiểm tra
         val script = """
 settings put system touchboost 1
 settings put system touch_prediction 1
@@ -156,9 +166,12 @@ settings put system show_touches 0
 settings put system pointer_speed 7
 HZ=${'$'}(dumpsys display 2>/dev/null | grep -oE "vsyncRate [0-9]+" | head -1 | grep -oE "[0-9]+")
 [ -z "${'$'}HZ" ] && HZ=90
-cmd game set --mode 2 --downscale $ds --fps ${'$'}HZ ${'$'}gamePackage
-cmd power set-fixed-performance-mode-enabled true 2>/dev/null
-echo "OK"
+cmd game set --mode 2 --downscale $ds --fps ${'$'}HZ ${'$'}gamePackage > /dev/null 2>&1
+GAME_EXIT=${'$'}?
+cmd power set-fixed-performance-mode-enabled true > /dev/null 2>&1
+POWER_EXIT=${'$'}?
+echo "GAME_EXIT=${'$'}GAME_EXIT"
+echo "POWER_EXIT=${'$'}POWER_EXIT"
         """.trimIndent()
 
         try {
@@ -169,16 +182,26 @@ echo "OK"
             while (r.readLine().also { line = it } != null) sb.append(line).append("\n")
             p.waitFor()
 
+            val output = sb.toString()
+
+            // BƯỚC 3: Kiểm tra exit code - nếu khác 0 tức là lệnh thất bại
+            val gameExit = Regex("GAME_EXIT=(\\d+)").find(output)?.groupValues?.get(1)?.toIntOrNull() ?: 1
+
             runOnUiThread {
-                notify(sens)
-                webView.evaluateJavascript("onApplySuccess()", null)
+                if (gameExit == 0) {
+                    // Thành công THẬT SỰ
+                    notify(sens)
+                    webView.evaluateJavascript("onApplySuccess();", null)
+                } else {
+                    // Thất bại - máy không hỗ trợ lệnh
+                    webView.evaluateJavascript("onApplyFail('cmd_failed');", null)
+                }
             }
         } catch (e: Exception) {
-            runOnUiThread { webView.evaluateJavascript("alert('Lỗi: ${e.message}');", null) }
+            runOnUiThread { webView.evaluateJavascript("onApplyFail('exception');", null) }
         }
     }
 
-    // Cầu nối giữa JavaScript (HTML) và Kotlin (Native)
     inner class Bridge {
         @JavascriptInterface
         fun applySensitivity(sens: Int, ds: String, gamePackage: String) = runShell(sens, gamePackage)
@@ -190,6 +213,16 @@ echo "OK"
                     Shizuku.requestPermission(SHIZUKU_CODE)
                 }
             }
+        }
+
+        @JavascriptInterface
+        fun checkShizukuPermission(): Boolean {
+            return Shizuku.checkSelfPermission() == PackageManager.PERMISSION_GRANTED
+        }
+
+        @JavascriptInterface
+        fun isGameInstalled(packageName: String): Boolean {
+            return this@MainActivity.isGameInstalled(packageName)
         }
 
         @JavascriptInterface
