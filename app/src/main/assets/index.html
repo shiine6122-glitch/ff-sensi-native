@@ -7,55 +7,131 @@
     <style>
         :root {
             --bg-color: #F2F4F8;
-            --card-bg: #FFFFFF;
+            --card-bg: rgba(255, 255, 255, 0.75);
+            --card-border: rgba(255, 255, 255, 0.4);
             --text-color: #111827;
             --text-secondary: #6B7280;
-            --border-color: #E5E7EB;
-            --primary-btn: #111827;
+            --border-color: rgba(0, 0, 0, 0.1);
+            --primary-btn: rgba(17, 24, 39, 0.85);
             --primary-btn-text: #FFFFFF;
         }
         
         .dark-theme {
             --bg-color: #0A0D14;
-            --card-bg: #151A23;
+            --card-bg: rgba(21, 26, 35, 0.75);
+            --card-border: rgba(255, 255, 255, 0.08);
             --text-color: #FFFFFF;
             --text-secondary: #9CA3AF;
-            --border-color: #232A38;
-            --primary-btn: #4F46E5;
+            --border-color: rgba(255, 255, 255, 0.08);
+            --primary-btn: rgba(79, 70, 229, 0.85);
             --primary-btn-text: #FFFFFF;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
-        body { background-color: var(--bg-color); color: var(--text-color); display: flex; justify-content: center; min-height: 100vh; transition: background 0.3s, color 0.3s; }
-        .app-container { width: 100%; max-width: 480px; padding: 20px 20px 80px 20px; position: relative; }
         
-        .card { background: var(--card-bg); border-radius: 16px; padding: 16px; margin-bottom: 16px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); border: 1px solid var(--border-color); }
+        html, body { 
+            background: var(--bg-color); 
+            color: var(--text-color); 
+            display: flex; 
+            justify-content: center; 
+            min-height: 100vh; 
+            transition: background 0.3s, color 0.3s; 
+        }
+        
+        /* Video nền FULL màn hình */
+        #bg-video {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw;
+            height: 100vh;
+            object-fit: cover;
+            z-index: -1;
+            display: none;
+        }
+        
+        /* Khi có video thì nền trong suốt để thấy video */
+        body.video-active,
+        body.video-active html {
+            background: transparent !important;
+        }
+        
+        .app-container { width: 100%; max-width: 480px; padding: 20px 20px 80px 20px; position: relative; z-index: 1; }
+        
+        /* Card MỜ ĐỤC với blur */
+        .card { 
+            background: var(--card-bg); 
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border-radius: 16px; 
+            padding: 16px; 
+            margin-bottom: 16px; 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08); 
+            border: 1px solid var(--card-border); 
+        }
+        
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         .header h1 { font-size: 24px; font-weight: 800; text-align: center; }
         .header .icon { font-size: 24px; color: var(--text-secondary); cursor: pointer; }
         
         .game-selector { display: flex; gap: 10px; margin-bottom: 16px; }
-        .game-btn { flex: 1; padding: 12px; border-radius: 12px; border: 2px solid var(--border-color); background: var(--card-bg); color: var(--text-color); text-align: center; font-weight: 600; font-size: 14px; cursor: pointer; transition: all 0.2s; }
-        .game-btn.active { background: var(--primary-btn); color: var(--primary-btn-text); border-color: var(--primary-btn); }
+        .game-btn { 
+            flex: 1; padding: 12px; border-radius: 12px; 
+            border: 2px solid var(--border-color); 
+            background: var(--card-bg);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            color: var(--text-color); 
+            text-align: center; font-weight: 600; font-size: 14px; 
+            cursor: pointer; transition: all 0.2s; 
+        }
+        .game-btn.active { background: var(--primary-btn); color: var(--primary-btn-text); border-color: transparent; }
         
         .slider-label { font-size: 14px; color: var(--text-secondary); font-weight: 600; }
         .slider-value { font-size: 40px; font-weight: 800; display: flex; align-items: flex-end; gap: 8px; margin-top: 4px; }
         .slider-value span { font-size: 14px; color: var(--text-secondary); font-weight: 500; margin-bottom: 8px; }
         input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; margin: 20px 0 10px 0; }
         input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 8px; background: var(--border-color); border-radius: 4px; }
-        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 24px; width: 24px; border-radius: 50%; background: var(--primary-btn); margin-top: -8px; box-shadow: 0 0 10px rgba(0,0,0,0.2); }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 24px; width: 24px; border-radius: 50%; background: var(--primary-btn); margin-top: -8px; box-shadow: 0 0 10px rgba(0,0,0,0.3); }
         .slider-range { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-secondary); font-weight: 600; }
 
-        .setting-link { display: flex; justify-content: space-between; align-items: center; padding: 16px; background: var(--card-bg); border-radius: 16px; margin-bottom: 16px; cursor: pointer; border: 1px solid var(--border-color); }
+        .setting-link { 
+            display: flex; justify-content: space-between; align-items: center; 
+            padding: 16px; 
+            background: var(--card-bg);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border-radius: 16px; margin-bottom: 16px; 
+            cursor: pointer; border: 1px solid var(--card-border); 
+        }
         .setting-link div p { font-size: 12px; color: var(--text-secondary); margin-top: 4px; }
         
-        .main-btn { width: 100%; height: 56px; border: none; border-radius: 16px; background: var(--primary-btn); color: var(--primary-btn-text); font-size: 18px; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; margin-top: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        /* Nút chính - MỜ ĐỤC */
+        .main-btn { 
+            width: 100%; height: 56px; border: none; border-radius: 16px; 
+            background: var(--primary-btn);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            color: var(--primary-btn-text); 
+            font-size: 18px; font-weight: bold; 
+            display: flex; align-items: center; justify-content: center; gap: 8px; 
+            cursor: pointer; margin-top: 20px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+            border: 1px solid var(--card-border);
+        }
         
         .page-header { display: flex; align-items: center; margin-bottom: 20px; }
         .page-header .back { font-size: 24px; margin-right: 16px; cursor: pointer; }
         .page-header h2 { font-size: 20px; font-weight: 700; }
         
-        .game-option { display: flex; align-items: center; justify-content: space-between; padding: 16px; background: var(--card-bg); border-radius: 16px; margin-bottom: 12px; border: 2px solid transparent; cursor: pointer; }
+        .game-option { 
+            display: flex; align-items: center; justify-content: space-between; 
+            padding: 16px; 
+            background: var(--card-bg);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border-radius: 16px; margin-bottom: 12px; 
+            border: 2px solid transparent; cursor: pointer; 
+        }
         .game-option.active { border-color: var(--primary-btn); }
         .radio-circle { width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--border-color); position: relative; }
         .game-option.active .radio-circle { border-color: var(--primary-btn); }
@@ -66,19 +142,35 @@
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         
         .success-container { display: flex; flex-direction: column; align-items: center; padding-top: 40px; }
-        .success-icon { width: 80px; height: 80px; border-radius: 50%; border: 4px solid var(--primary-btn); display: flex; align-items: center; justify-content: center; margin-bottom: 20px; }
+        .success-icon { width: 80px; height: 80px; border-radius: 50%; border: 4px solid var(--primary-btn); display: flex; align-items: center; justify-content: center; margin-bottom: 20px; background: var(--card-bg); backdrop-filter: blur(15px); }
         .success-icon svg { width: 40px; height: 40px; fill: var(--primary-btn); }
         .success-text { text-align: center; margin-bottom: 30px; }
         
-        .info-item { display: flex; align-items: center; justify-content: space-between; padding: 16px; background: var(--card-bg); border-radius: 16px; margin-bottom: 12px; border: 1px solid var(--border-color); }
+        .info-item { 
+            display: flex; align-items: center; justify-content: space-between; 
+            padding: 16px; 
+            background: var(--card-bg);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border-radius: 16px; margin-bottom: 12px; 
+            border: 1px solid var(--card-border); 
+        }
         .info-item-left { display: flex; align-items: center; gap: 12px; }
-        .info-icon { width: 40px; height: 40px; background: var(--bg-color); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+        .info-icon { width: 40px; height: 40px; background: var(--bg-color); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; opacity: 0.9; }
         .toggle { width: 50px; height: 28px; background: var(--border-color); border-radius: 14px; position: relative; cursor: pointer; transition: 0.3s; flex-shrink: 0; }
         .toggle.active { background: var(--primary-btn); }
-        .toggle::after { content: ''; position: absolute; width: 24px; height: 24px; background: white; border-radius: 50%; top: 2px; left: 2px; transition: 0.3s; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+        .toggle::after { content: ''; position: absolute; width: 24px; height: 24px; background: rgba(255,255,255,0.95); border-radius: 50%; top: 2px; left: 2px; transition: 0.3s; box-shadow: 0 2px 4px rgba(0,0,0,0.15); }
         .toggle.active::after { left: 24px; }
         
-        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: var(--card-bg); border-top: 1px solid var(--border-color); display: flex; justify-content: space-around; padding: 10px 0; max-width: 480px; margin: 0 auto; z-index: 100; }
+        .bottom-nav { 
+            position: fixed; bottom: 0; left: 0; right: 0; 
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-top: 1px solid var(--card-border); 
+            display: flex; justify-content: space-around; padding: 10px 0; 
+            max-width: 480px; margin: 0 auto; z-index: 100; 
+        }
         .nav-item { display: flex; flex-direction: column; align-items: center; color: var(--text-secondary); font-size: 12px; cursor: pointer; font-weight: 600; }
         .nav-item.active { color: var(--primary-btn); }
         .nav-item i { font-size: 20px; margin-bottom: 4px; font-style: normal; }
@@ -86,10 +178,23 @@
         .page { display: none; }
         .page.active { display: block; }
         
-        .shizuku-btn { background: #10B981; color: white; padding: 8px 12px; border-radius: 8px; font-size: 12px; border: none; font-weight: bold; cursor: pointer; flex-shrink: 0; }
-        .action-btn { background: var(--primary-btn); color: white; padding: 8px 12px; border-radius: 8px; font-size: 12px; border: none; font-weight: bold; cursor: pointer; flex-shrink: 0; }
+        .shizuku-btn { 
+            background: rgba(16, 185, 129, 0.85);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            color: white; padding: 8px 12px; border-radius: 8px; font-size: 12px; 
+            border: 1px solid rgba(255,255,255,0.15); font-weight: bold; cursor: pointer; flex-shrink: 0; 
+        }
+        
+        /* Nút phụ - MỜ ĐỤC */
+        .action-btn { 
+            background: var(--primary-btn);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            color: white; padding: 8px 12px; border-radius: 8px; font-size: 12px; 
+            border: 1px solid var(--card-border); font-weight: bold; cursor: pointer; flex-shrink: 0; 
+        }
 
-        /* ===== HIỆU ỨNG MƯỢT MÀ ===== */
         @keyframes fadeInUp {
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
@@ -99,40 +204,39 @@
             50% { opacity: 1; transform: scale(1.05); }
             100% { opacity: 1; transform: scale(1); }
         }
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-        }
         @keyframes ripple {
             0% { transform: scale(0); opacity: 0.6; }
             100% { transform: scale(4); opacity: 0; }
         }
         .page.active { animation: fadeInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
         .card, .info-item, .game-option, .setting-link { animation: fadeInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) backwards; }
-        .card:nth-child(1) { animation-delay: 0.05s; }
-        .card:nth-child(2) { animation-delay: 0.1s; }
-        .card:nth-child(3) { animation-delay: 0.15s; }
         .main-btn, .action-btn, .shizuku-btn, .game-btn { transition: transform 0.15s ease, box-shadow 0.2s ease; position: relative; overflow: hidden; }
-        .main-btn:active, .action-btn:active, .shizuku-btn:active, .game-btn:active { transform: scale(0.96); box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
-        .main-btn::after, .action-btn::after { content: ''; position: absolute; top: 50%; left: 50%; width: 100%; height: 100%; background: rgba(255,255,255,0.3); border-radius: 50%; transform: scale(0); opacity: 0; pointer-events: none; }
+        .main-btn:active, .action-btn:active, .shizuku-btn:active, .game-btn:active { transform: scale(0.96); }
+        .main-btn::after, .action-btn::after { content: ''; position: absolute; top: 50%; left: 50%; width: 100%; height: 100%; background: rgba(255,255,255,0.2); border-radius: 50%; transform: scale(0); opacity: 0; pointer-events: none; }
         .main-btn:active::after, .action-btn:active::after { animation: ripple 0.6s ease-out; }
-        .spinner { box-shadow: 0 0 20px rgba(79, 70, 229, 0.3); }
-        .success-icon { animation: popIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); box-shadow: 0 0 30px rgba(79, 70, 229, 0.3); }
+        .success-icon { animation: popIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); }
         .success-icon svg { animation: popIn 0.5s 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) backwards; }
-        input[type=range]::-webkit-slider-thumb { transition: transform 0.2s ease, box-shadow 0.2s ease; }
-        input[type=range]::-webkit-slider-thumb:active { transform: scale(1.2); box-shadow: 0 0 20px rgba(79, 70, 229, 0.6); }
-        .toggle::after { transition: left 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
-        .nav-item { transition: color 0.2s ease, transform 0.2s ease; }
-        .nav-item:active { transform: scale(0.9); }
-        .nav-item.active i { animation: pulse 2s ease-in-out infinite; }
-        .error-box { background: #FEF2F2; border: 1px solid #FCA5A5; border-radius: 12px; padding: 12px 16px; margin-top: 16px; display: flex; gap: 12px; align-items: flex-start; animation: fadeInUp 0.4s ease; }
-        .dark-theme .error-box { background: rgba(239, 68, 68, 0.15); border-color: rgba(239, 68, 68, 0.4); }
+        input[type=range]::-webkit-slider-thumb { transition: transform 0.2s ease; }
+        input[type=range]::-webkit-slider-thumb:active { transform: scale(1.2); }
+        
+        .error-box { 
+            background: rgba(239, 68, 68, 0.15); 
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(239, 68, 68, 0.4); 
+            border-radius: 12px; padding: 12px 16px; margin-top: 16px; 
+            display: flex; gap: 12px; align-items: flex-start; 
+            animation: fadeInUp 0.4s ease; 
+        }
         .error-box .error-icon { font-size: 20px; flex-shrink: 0; }
         .error-box .error-text { font-size: 13px; color: #991B1B; line-height: 1.5; }
         .dark-theme .error-box .error-text { color: #FCA5A5; }
     </style>
 </head>
 <body>
+
+<!-- Video nền full màn hình -->
+<video id="bg-video" autoplay loop muted playsinline></video>
 
 <div class="app-container">
     <!-- ================= PAGE: HOME ================= -->
@@ -311,18 +415,7 @@
             <div class="toggle active" id="theme-toggle" onclick="toggleTheme()"></div>
         </div>
 
-        <div class="info-item">
-            <div class="info-item-left">
-                <div class="info-icon">🖼️</div>
-                <div>
-                    <h3 style="font-size: 16px;" data-lang="wallpaper">Hình nền</h3>
-                    <p style="font-size: 12px; color: var(--text-secondary);" data-lang="wallpaper_desc">Đổi màu nền ứng dụng</p>
-                </div>
-            </div>
-            <button class="action-btn" onclick="changeWallpaper()">Đổi</button>
-        </div>
-
-        <!-- Hình nền động bằng Video -->
+        <!-- CHỈ CÒN HÌNH NỀN VIDEO (đã xóa đổi màu nền) -->
         <div class="info-item">
             <div class="info-item-left">
                 <div class="info-icon">🎥</div>
@@ -333,7 +426,6 @@
             </div>
             <button class="action-btn" onclick="document.getElementById('video-picker').click()">Chọn</button>
             <input type="file" id="video-picker" accept="video/*" style="display: none;">
-            <video id="bg-video" autoplay loop muted playsinline style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: -1; display: none;"></video>
         </div>
 
         <div class="info-item">
@@ -370,7 +462,6 @@
     let currentLang = 'vi';
     let isDarkTheme = true;
 
-    // Hàm tính toán Downscale ngầm
     function calculateDownscale(sens) {
         const baseSens = 200;
         const baseDownscale = 1.0;
@@ -392,8 +483,7 @@
             success: "Đã áp dụng thành công!", sens_set_to: "Độ nhạy cảm ứng đã được đặt thành",
             info: "Thông tin", connected: "Đã kết nối", access_rights: "Quyền truy cập", granted: "Đã cấp (OK)",
             tiktok_link: "Liên kết TikTok", settings: "Cài đặt", language: "Ngôn ngữ", theme: "Chủ đề",
-            theme_desc: "Sáng / Tối", wallpaper: "Hình nền", wallpaper_desc: "Đổi màu nền ứng dụng",
-            dynamic_wallpaper: "Hiệu ứng nền Gradient", dynamic_desc: "Màu nền chuyển động nhẹ", app_info: "Thông tin ứng dụng",
+            theme_desc: "Sáng / Tối", app_info: "Thông tin ứng dụng",
             app_info_desc: "Phiên bản, điều khoản", home: "Trang chủ"
         },
         en: {
@@ -404,15 +494,12 @@
             success: "Applied Successfully!", sens_set_to: "Touch sensitivity has been set to",
             info: "Information", connected: "Connected", access_rights: "Access Rights", granted: "Granted (OK)",
             tiktok_link: "TikTok Link", settings: "Settings", language: "Language", theme: "Theme",
-            theme_desc: "Light / Dark", wallpaper: "Wallpaper", wallpaper_desc: "Change app background color",
-            dynamic_wallpaper: "Gradient Background Effect", dynamic_desc: "Smooth color transition", app_info: "App Info",
+            theme_desc: "Light / Dark", app_info: "App Info",
             app_info_desc: "Version, terms", home: "Home"
         }
     };
 
-    function saveSetting(key, value) {
-        localStorage.setItem(key, value);
-    }
+    function saveSetting(key, value) { localStorage.setItem(key, value); }
 
     function loadSettings() {
         const savedLang = localStorage.getItem('lang');
@@ -421,9 +508,7 @@
             document.getElementById('current-lang-text').innerText = currentLang === 'vi' ? 'Tiếng Việt' : 'English';
             document.querySelectorAll('[data-lang]').forEach(el => {
                 const key = el.getAttribute('data-lang');
-                if (translations[currentLang][key]) {
-                    el.innerText = translations[currentLang][key];
-                }
+                if (translations[currentLang][key]) { el.innerText = translations[currentLang][key]; }
             });
         }
 
@@ -436,11 +521,6 @@
             isDarkTheme = false;
             document.body.classList.remove('dark-theme');
             document.getElementById('theme-toggle').classList.remove('active');
-        }
-
-        const savedBg = localStorage.getItem('bgColor');
-        if (savedBg) {
-            document.documentElement.style.setProperty('--bg-color', savedBg);
         }
 
         const savedSens = localStorage.getItem('sensitivity');
@@ -457,9 +537,7 @@
         document.getElementById('current-lang-text').innerText = currentLang === 'vi' ? 'Tiếng Việt' : 'English';
         document.querySelectorAll('[data-lang]').forEach(el => {
             const key = el.getAttribute('data-lang');
-            if (translations[currentLang][key]) {
-                el.innerText = translations[currentLang][key];
-            }
+            if (translations[currentLang][key]) { el.innerText = translations[currentLang][key]; }
         });
     }
 
@@ -468,21 +546,6 @@
         document.body.classList.toggle('dark-theme', isDarkTheme);
         document.getElementById('theme-toggle').classList.toggle('active', isDarkTheme);
         saveSetting('theme', isDarkTheme ? 'dark' : 'light');
-    }
-
-    function changeWallpaper() {
-        const colors = ['#F2F4F8', '#E0E7FF', '#FCE7F3', '#D1FAE5', '#FEF3C7'];
-        let currentBg = getComputedStyle(document.documentElement).getPropertyValue('--bg-color').trim();
-        let nextColor = colors[0];
-        for (let i = 0; i < colors.length; i++) {
-            if (colors[i].toLowerCase() === currentBg.toLowerCase()) {
-                nextColor = colors[(i + 1) % colors.length];
-                break;
-            }
-        }
-        document.documentElement.style.setProperty('--bg-color', nextColor);
-        saveSetting('bgColor', nextColor);
-        alert('Đã đổi màu nền ứng dụng thành: ' + nextColor);
     }
 
     const slider = document.getElementById('sens-slider');
@@ -516,7 +579,7 @@
         saveSetting('selectedGame', game);
     }
 
-    // Hàm áp dụng đã được nâng cấp (Kiểm tra lỗi)
+    // ===== ĐÃ BỎ CHECK GAME - Cứ chạy, máy tự báo =====
     function startApplying() {
         const sens = parseInt(slider.value);
         const ds = calculateDownscale(sens);
@@ -525,14 +588,6 @@
         if (window.AndroidBridge && window.AndroidBridge.checkShizukuPermission) {
             if (!window.AndroidBridge.checkShizukuPermission()) {
                 showError('Bạn chưa cấp quyền Shizuku cho app. Hãy mở app Shizuku và cấp quyền.');
-                return;
-            }
-        }
-
-        if (window.AndroidBridge && window.AndroidBridge.isGameInstalled) {
-            if (!window.AndroidBridge.isGameInstalled(gamePackage)) {
-                const gameName = selectedGame === 'FFMAX' ? 'Free Fire Max' : 'Free Fire';
-                showError(`Game ${gameName} chưa được cài trên máy. Vui lòng cài game trước.`);
                 return;
             }
         }
@@ -546,31 +601,25 @@
         }
     }
 
-    // Hàm xử lý khi thành công
     function onApplySuccess() {
-        console.log("Shell: Thành công thật sự!");
+        console.log("Shell: Thành công!");
         switchPage('success');
     }
 
-    // Hàm xử lý khi thất bại (Mới)
     function onApplyFail(reason) {
         console.log("Shell: Thất bại - " + reason);
         switchPage('home');
         let msg = '';
         if (reason === 'shizuku_denied') {
             msg = 'Bạn chưa cấp quyền Shizuku cho app. Hãy mở app Shizuku và cấp quyền rồi thử lại.';
-        } else if (reason === 'game_not_installed') {
-            const gameName = selectedGame === 'FFMAX' ? 'Free Fire Max' : 'Free Fire';
-            msg = `Game ${gameName} chưa được cài trên máy. Vui lòng cài game trước khi áp dụng.`;
         } else if (reason === 'cmd_failed') {
-            msg = 'Máy của bạn không hỗ trợ lệnh này. Có thể do dòng máy chặn hoặc game không tương thích.';
+            msg = 'Máy của bạn không hỗ trợ lệnh này, hoặc game chưa được cài. Vui lòng kiểm tra lại.';
         } else {
             msg = 'Có lỗi xảy ra trong quá trình áp dụng. Vui lòng thử lại.';
         }
         showError(msg);
     }
 
-    // Hàm hiển thị thông báo lỗi (Mới)
     function showError(message) {
         const oldBox = document.querySelector('.error-box');
         if (oldBox) oldBox.remove();
@@ -611,7 +660,6 @@
         window.scrollTo(0, 0);
     }
 
-    // Xử lý chọn video làm hình nền
     document.getElementById('video-picker').addEventListener('change', function(e) {
         const file = e.target.files[0];
         if (file) {
@@ -619,36 +667,45 @@
             const bgVideo = document.getElementById('bg-video');
             bgVideo.src = videoUrl;
             bgVideo.style.display = 'block';
-            
-            document.body.style.background = 'transparent';
-            document.documentElement.style.setProperty('--bg-color', 'transparent');
-            
-            localStorage.setItem('useVideoBg', 'true');
-            console.log('Đã chọn video làm hình nền, đang chờ lưu...');
+            document.body.classList.add('video-active');
+            console.log('Đã chọn video làm hình nền');
         }
     });
 
-    // Hàm này được gọi từ Kotlin sau khi video đã được lưu vĩnh viễn
     function onVideoSaved(fileUrl) {
         const bgVideo = document.getElementById('bg-video');
         bgVideo.src = fileUrl;
         bgVideo.style.display = 'block';
-        document.body.style.background = 'transparent';
-        document.documentElement.style.setProperty('--bg-color', 'transparent');
-        console.log('Video đã được lưu vĩnh viễn: ' + fileUrl);
+        document.body.classList.add('video-active');
+        console.log('Video đã lưu: ' + fileUrl);
     }
 
-    // Khi mở app: load cài đặt + tự động tải video đã lưu
+    function loadDefaultVideo() {
+        const bgVideo = document.getElementById('bg-video');
+        bgVideo.src = 'file:///android_asset/default_bg.mp4';
+        bgVideo.style.display = 'block';
+        document.body.classList.add('video-active');
+        bgVideo.play().catch(e => {
+            console.log('Default video không phát được: ' + e);
+            bgVideo.style.display = 'none';
+            document.body.classList.remove('video-active');
+        });
+    }
+
     window.addEventListener('DOMContentLoaded', function() {
         loadSettings();
+        
         if (window.AndroidBridge && window.AndroidBridge.getSavedVideoPath) {
             const savedPath = window.AndroidBridge.getSavedVideoPath();
             if (savedPath && savedPath.length > 0) {
-                setTimeout(() => { onVideoSaved(savedPath); }, 500);
+                setTimeout(() => { onVideoSaved(savedPath); }, 300);
+                return;
             }
         }
+        
+        setTimeout(loadDefaultVideo, 300);
     });
 </script>
 
 </body>
-                    </html>
+</html>
