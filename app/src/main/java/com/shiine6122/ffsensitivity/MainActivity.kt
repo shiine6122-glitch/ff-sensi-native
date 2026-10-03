@@ -100,21 +100,12 @@ class MainActivity : AppCompatActivity() {
         (getSystemService(NOTIFICATION_SERVICE) as NotificationManager).notify(1, n)
     }
 
-    private fun calcDS(sens: Int): String {
-        if (sens <= 200) return "1.0000"
-        val steps = (sens - 200).toDouble() / 10
-        val ds = 1.0 + steps * 0.031265822784810126
-        return String.format(java.util.Locale.US, "%.4f", if (ds > 3.5) 3.5 else ds)
-    }
-
-    // ===== ĐÃ BỎ CHECK GAME - Cứ gửi lệnh, máy tự báo lỗi =====
+    // ===== CHỈ CHẠY CÁC LỆNH SETTINGS PUT - BỎ CMD GAME SET =====
     private fun runShell(sens: Int, gamePackage: String) {
         if (Shizuku.checkSelfPermission() != PackageManager.PERMISSION_GRANTED) {
             runOnUiThread { webView.evaluateJavascript("onApplyFail('shizuku_denied');", null) }
             return
         }
-
-        val ds = calcDS(sens)
 
         val script = """
 settings put system touchboost 1
@@ -136,12 +127,7 @@ settings put system touch_hover_enable 0
 settings put system touch_self_calibration 1
 settings put system show_touches 0
 settings put system pointer_speed 7
-HZ=${'$'}(dumpsys display 2>/dev/null | grep -oE "vsyncRate [0-9]+" | head -1 | grep -oE "[0-9]+")
-[ -z "${'$'}HZ" ] && HZ=90
-cmd game set --mode 2 --downscale $ds --fps ${'$'}HZ ${'$'}gamePackage > /dev/null 2>&1
-GAME_EXIT=${'$'}?
-cmd power set-fixed-performance-mode-enabled true > /dev/null 2>&1
-echo "GAME_EXIT=${'$'}GAME_EXIT"
+echo "DONE"
         """.trimIndent()
 
         try {
@@ -152,16 +138,9 @@ echo "GAME_EXIT=${'$'}GAME_EXIT"
             while (r.readLine().also { line = it } != null) sb.append(line).append("\n")
             p.waitFor()
 
-            val output = sb.toString()
-            val gameExit = Regex("GAME_EXIT=(\\d+)").find(output)?.groupValues?.get(1)?.toIntOrNull() ?: 1
-
             runOnUiThread {
-                if (gameExit == 0) {
-                    notify(sens)
-                    webView.evaluateJavascript("onApplySuccess();", null)
-                } else {
-                    webView.evaluateJavascript("onApplyFail('cmd_failed');", null)
-                }
+                notify(sens)
+                webView.evaluateJavascript("onApplySuccess();", null)
             }
         } catch (e: Exception) {
             runOnUiThread { webView.evaluateJavascript("onApplyFail('exception');", null) }
