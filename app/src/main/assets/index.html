@@ -38,7 +38,6 @@
             transition: background 0.3s, color 0.3s; 
         }
         
-        /* Video nền FULL màn hình */
         #bg-video {
             position: fixed;
             top: 0; left: 0;
@@ -49,7 +48,6 @@
             display: none;
         }
         
-        /* Khi có video thì nền trong suốt để thấy video */
         body.video-active,
         body.video-active html {
             background: transparent !important;
@@ -57,7 +55,6 @@
         
         .app-container { width: 100%; max-width: 480px; padding: 20px 20px 80px 20px; position: relative; z-index: 1; }
         
-        /* Card MỜ ĐỤC với blur */
         .card { 
             background: var(--card-bg); 
             backdrop-filter: blur(15px);
@@ -105,7 +102,6 @@
         }
         .setting-link div p { font-size: 12px; color: var(--text-secondary); margin-top: 4px; }
         
-        /* Nút chính - MỜ ĐỤC */
         .main-btn { 
             width: 100%; height: 56px; border: none; border-radius: 16px; 
             background: var(--primary-btn);
@@ -186,7 +182,6 @@
             border: 1px solid rgba(255,255,255,0.15); font-weight: bold; cursor: pointer; flex-shrink: 0; 
         }
         
-        /* Nút phụ - MỜ ĐỤC */
         .action-btn { 
             background: var(--primary-btn);
             backdrop-filter: blur(10px);
@@ -235,11 +230,9 @@
 </head>
 <body>
 
-<!-- Video nền full màn hình -->
 <video id="bg-video" autoplay loop muted playsinline></video>
 
 <div class="app-container">
-    <!-- ================= PAGE: HOME ================= -->
     <div id="page-home" class="page active">
         <div class="header">
             <div style="width: 24px;"></div>
@@ -278,7 +271,6 @@
         </button>
     </div>
 
-    <!-- ================= PAGE: CHOOSE GAME ================= -->
     <div id="page-choose" class="page">
         <div class="page-header">
             <div class="back" onclick="switchPage('home')">←</div>
@@ -306,7 +298,6 @@
         </button>
     </div>
 
-    <!-- ================= PAGE: LOADING ================= -->
     <div id="page-loading" class="page">
         <div class="loading-container">
             <div class="spinner"></div>
@@ -317,7 +308,6 @@
         </div>
     </div>
 
-    <!-- ================= PAGE: SUCCESS ================= -->
     <div id="page-success" class="page">
         <div class="success-container">
             <div class="success-icon">
@@ -331,7 +321,6 @@
         </div>
     </div>
 
-    <!-- ================= PAGE: INFO ================= -->
     <div id="page-info" class="page">
         <div class="header">
             <div style="width: 24px;"></div>
@@ -385,7 +374,6 @@
         </a>
     </div>
 
-    <!-- ================= PAGE: SETTINGS ================= -->
     <div id="page-settings" class="page">
         <div class="header">
             <div class="back" onclick="switchPage('home')">←</div>
@@ -440,7 +428,6 @@
     </div>
 </div>
 
-<!-- BOTTOM NAV -->
 <div class="bottom-nav">
     <div class="nav-item active" onclick="switchPage('home', this)">
         <i>🏠</i>
@@ -678,10 +665,9 @@
         console.log('Video đã lưu: ' + fileUrl);
     }
 
-    // ===== ĐÃ SỬA LINK VIDEO CATBOX =====
     function loadDefaultVideo() {
         const bgVideo = document.getElementById('bg-video');
-        bgVideo.src = 'https://files.catbox.moe/xu5ckc.mp4';
+        bgVideo.src = 'file:///android_asset/default_bg.mp4';
         bgVideo.style.display = 'block';
         document.body.classList.add('video-active');
         bgVideo.play().catch(e => {
@@ -707,4 +693,4 @@
 </script>
 
 </body>
-        </html>
+    </html>
