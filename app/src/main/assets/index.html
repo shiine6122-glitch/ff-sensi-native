@@ -12,7 +12,7 @@
             --text-color: #111827;
             --text-secondary: #6B7280;
             --border-color: rgba(0, 0, 0, 0.1);
-            --primary-btn: rgba(17, 24, 39, 0.85);
+            --primary-btn: rgba(17, 24, 39, 0.4);
             --primary-btn-text: #FFFFFF;
         }
         
@@ -23,7 +23,7 @@
             --text-color: #FFFFFF;
             --text-secondary: #9CA3AF;
             --border-color: rgba(255, 255, 255, 0.08);
-            --primary-btn: rgba(79, 70, 229, 0.85);
+            --primary-btn: rgba(79, 70, 229, 0.4);
             --primary-btn-text: #FFFFFF;
         }
 
@@ -175,7 +175,7 @@
         .page.active { display: block; }
         
         .shizuku-btn { 
-            background: rgba(16, 185, 129, 0.85);
+            background: rgba(16, 185, 129, 0.4);
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
             color: white; padding: 8px 12px; border-radius: 8px; font-size: 12px; 
@@ -228,7 +228,7 @@
         .dark-theme .error-box .error-text { color: #FCA5A5; }
     </style>
 </head>
-<body>
+<body class="dark-theme">
 
 <video id="bg-video" autoplay loop muted playsinline></video>
 
@@ -499,11 +499,7 @@
         }
 
         const savedTheme = localStorage.getItem('theme');
-        if (savedTheme === 'dark') {
-            isDarkTheme = true;
-            document.body.classList.add('dark-theme');
-            document.getElementById('theme-toggle').classList.add('active');
-        } else if (savedTheme === 'light') {
+        if (savedTheme === 'light') {
             isDarkTheme = false;
             document.body.classList.remove('dark-theme');
             document.getElementById('theme-toggle').classList.remove('active');
@@ -693,4 +689,4 @@
 </script>
 
 </body>
-    </html>
+            </html>
