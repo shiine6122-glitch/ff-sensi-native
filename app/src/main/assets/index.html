@@ -281,18 +281,19 @@
         </div>
 
         <!-- Hình nền động bằng Video -->
-<div class="info-item">
-    <div class="info-item-left">
-        <div class="info-icon">🎥</div>
-        <div>
-            <h3 style="font-size: 16px;">Hình nền Video</h3>
-            <p style="font-size: 12px; color: var(--text-secondary);">Chọn video từ thư viện</p>
+        <div class="info-item">
+            <div class="info-item-left">
+                <div class="info-icon">🎥</div>
+                <div>
+                    <h3 style="font-size: 16px;">Hình nền Video</h3>
+                    <p style="font-size: 12px; color: var(--text-secondary);">Chọn video từ thư viện</p>
+                </div>
+            </div>
+            <button class="action-btn" onclick="document.getElementById('video-picker').click()">Chọn</button>
+            <input type="file" id="video-picker" accept="video/*" style="display: none;">
+            <video id="bg-video" autoplay loop muted playsinline style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: -1; display: none;"></video>
         </div>
-    </div>
-    <button class="action-btn" onclick="document.getElementById('video-picker').click()">Chọn</button>
-    <input type="file" id="video-picker" accept="video/*" style="display: none;">
-    <video id="bg-video" autoplay loop muted playsinline style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: -1; display: none;"></video>
-</div>
+
         <div class="info-item">
             <div class="info-item-left">
                 <div class="info-icon">ℹ️</div>
@@ -442,16 +443,6 @@
         alert('Đã đổi màu nền ứng dụng thành: ' + nextColor);
     }
 
-    function toggleDynamicWallpaper() {
-        const toggle = document.getElementById('dynamic-toggle');
-        toggle.classList.toggle('active');
-        if (toggle.classList.contains('active')) {
-            document.body.style.background = 'linear-gradient(135deg, var(--bg-color), var(--primary-btn))';
-        } else {
-            document.body.style.background = 'var(--bg-color)';
-        }
-    }
-
     const slider = document.getElementById('sens-slider');
     const currentVal = document.getElementById('current-value');
     const successVal = document.getElementById('success-value');
@@ -489,8 +480,11 @@
         const sens = parseInt(slider.value);
         const ds = calculateDownscale(sens);
         
+        // Xác định tên gói dựa trên game đã chọn
+        const gamePackage = selectedGame === 'FFMAX' ? 'com.dts.freefiremax' : 'com.dts.freefireth';
+        
         if (window.AndroidBridge) {
-            window.AndroidBridge.applySensitivity(sens, ds);
+            window.AndroidBridge.applySensitivity(sens, ds, gamePackage);
         } else {
             setTimeout(() => {
                 switchPage('success');
@@ -528,29 +522,43 @@
     }
 
     // Xử lý chọn video làm hình nền
-document.getElementById('video-picker').addEventListener('change', function(e) {
-    const file = e.target.files[0];
-    if (file) {
-        const videoUrl = URL.createObjectURL(file);
+    document.getElementById('video-picker').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const videoUrl = URL.createObjectURL(file);
+            const bgVideo = document.getElementById('bg-video');
+            bgVideo.src = videoUrl;
+            bgVideo.style.display = 'block';
+            
+            document.body.style.background = 'transparent';
+            document.documentElement.style.setProperty('--bg-color', 'transparent');
+            
+            localStorage.setItem('useVideoBg', 'true');
+            console.log('Đã chọn video làm hình nền, đang chờ lưu...');
+        }
+    });
+
+    // Hàm này được gọi từ Kotlin sau khi video đã được lưu vĩnh viễn
+    function onVideoSaved(fileUrl) {
         const bgVideo = document.getElementById('bg-video');
-        bgVideo.src = videoUrl;
+        bgVideo.src = fileUrl;
         bgVideo.style.display = 'block';
-        
         document.body.style.background = 'transparent';
         document.documentElement.style.setProperty('--bg-color', 'transparent');
-        
-        localStorage.setItem('useVideoBg', 'true');
-        alert('Đã đặt video làm hình nền! (Lưu ý: Video sẽ mất khi tắt app do giới hạn của WebView)');
+        console.log('Video đã được lưu vĩnh viễn: ' + fileUrl);
     }
-});
 
-function loadVideoBg() {
-    const useVideo = localStorage.getItem('useVideoBg');
-    if (useVideo === 'true') {
-        console.log("Người dùng đã từng chọn video làm nền.");
-    }
-    }window.addEventListener('DOMContentLoaded', loadSettings);
+    // Khi mở app: load cài đặt + tự động tải video đã lưu
+    window.addEventListener('DOMContentLoaded', function() {
+        loadSettings();
+        if (window.AndroidBridge && window.AndroidBridge.getSavedVideoPath) {
+            const savedPath = window.AndroidBridge.getSavedVideoPath();
+            if (savedPath && savedPath.length > 0) {
+                setTimeout(() => { onVideoSaved(savedPath); }, 500);
+            }
+        }
+    });
 </script>
 
 </body>
-</html>
+    </html>
