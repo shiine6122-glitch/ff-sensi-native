@@ -415,7 +415,6 @@
             <div class="toggle active" id="theme-toggle" onclick="toggleTheme()"></div>
         </div>
 
-        <!-- CHỈ CÒN HÌNH NỀN VIDEO (đã xóa đổi màu nền) -->
         <div class="info-item">
             <div class="info-item-left">
                 <div class="info-icon">🎥</div>
@@ -579,7 +578,6 @@
         saveSetting('selectedGame', game);
     }
 
-    // ===== ĐÃ BỎ CHECK GAME - Cứ chạy, máy tự báo =====
     function startApplying() {
         const sens = parseInt(slider.value);
         const ds = calculateDownscale(sens);
@@ -680,9 +678,10 @@
         console.log('Video đã lưu: ' + fileUrl);
     }
 
+    // ===== ĐÃ SỬA LINK VIDEO CATBOX =====
     function loadDefaultVideo() {
         const bgVideo = document.getElementById('bg-video');
-        bgVideo.src = 'file:///android_asset/default_bg.mp4';
+        bgVideo.src = 'https://files.catbox.moe/xu5ckc.mp4';
         bgVideo.style.display = 'block';
         document.body.classList.add('video-active');
         bgVideo.play().catch(e => {
@@ -708,4 +707,4 @@
 </script>
 
 </body>
-</html>
+        </html>
