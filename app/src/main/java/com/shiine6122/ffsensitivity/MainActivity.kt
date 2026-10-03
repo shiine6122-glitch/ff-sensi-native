@@ -27,6 +27,8 @@ class MainActivity : AppCompatActivity() {
         // Cấu hình WebView
         webView.settings.javaScriptEnabled = true
         webView.settings.domStorageEnabled = true // Bật localStorage để lưu cài đặt
+        webView.settings.allowFileAccess = true
+        webView.settings.allowContentAccess = true
         webView.addJavascriptInterface(Bridge(), "AndroidBridge")
         webView.loadUrl("file:///android_asset/index.html")
 
