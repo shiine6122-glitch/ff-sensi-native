@@ -42,7 +42,7 @@ class MainActivity : AppCompatActivity() {
                 pendingCallback = filePathCallback
                 val intent = fileChooserParams?.createIntent()
                 try {
-                    startActivityForResult(intent, 100)
+                    startActivityForResult(intent!!, 100)
                 } catch (e: Exception) {
                     pendingCallback = null
                     return false
