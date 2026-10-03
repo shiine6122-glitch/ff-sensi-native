@@ -88,6 +88,48 @@
         
         .shizuku-btn { background: #10B981; color: white; padding: 8px 12px; border-radius: 8px; font-size: 12px; border: none; font-weight: bold; cursor: pointer; flex-shrink: 0; }
         .action-btn { background: var(--primary-btn); color: white; padding: 8px 12px; border-radius: 8px; font-size: 12px; border: none; font-weight: bold; cursor: pointer; flex-shrink: 0; }
+
+        /* ===== HIỆU ỨNG MƯỢT MÀ ===== */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes popIn {
+            0% { opacity: 0; transform: scale(0.8); }
+            50% { opacity: 1; transform: scale(1.05); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        @keyframes ripple {
+            0% { transform: scale(0); opacity: 0.6; }
+            100% { transform: scale(4); opacity: 0; }
+        }
+        .page.active { animation: fadeInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+        .card, .info-item, .game-option, .setting-link { animation: fadeInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) backwards; }
+        .card:nth-child(1) { animation-delay: 0.05s; }
+        .card:nth-child(2) { animation-delay: 0.1s; }
+        .card:nth-child(3) { animation-delay: 0.15s; }
+        .main-btn, .action-btn, .shizuku-btn, .game-btn { transition: transform 0.15s ease, box-shadow 0.2s ease; position: relative; overflow: hidden; }
+        .main-btn:active, .action-btn:active, .shizuku-btn:active, .game-btn:active { transform: scale(0.96); box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
+        .main-btn::after, .action-btn::after { content: ''; position: absolute; top: 50%; left: 50%; width: 100%; height: 100%; background: rgba(255,255,255,0.3); border-radius: 50%; transform: scale(0); opacity: 0; pointer-events: none; }
+        .main-btn:active::after, .action-btn:active::after { animation: ripple 0.6s ease-out; }
+        .spinner { box-shadow: 0 0 20px rgba(79, 70, 229, 0.3); }
+        .success-icon { animation: popIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); box-shadow: 0 0 30px rgba(79, 70, 229, 0.3); }
+        .success-icon svg { animation: popIn 0.5s 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) backwards; }
+        input[type=range]::-webkit-slider-thumb { transition: transform 0.2s ease, box-shadow 0.2s ease; }
+        input[type=range]::-webkit-slider-thumb:active { transform: scale(1.2); box-shadow: 0 0 20px rgba(79, 70, 229, 0.6); }
+        .toggle::after { transition: left 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        .nav-item { transition: color 0.2s ease, transform 0.2s ease; }
+        .nav-item:active { transform: scale(0.9); }
+        .nav-item.active i { animation: pulse 2s ease-in-out infinite; }
+        .error-box { background: #FEF2F2; border: 1px solid #FCA5A5; border-radius: 12px; padding: 12px 16px; margin-top: 16px; display: flex; gap: 12px; align-items: flex-start; animation: fadeInUp 0.4s ease; }
+        .dark-theme .error-box { background: rgba(239, 68, 68, 0.15); border-color: rgba(239, 68, 68, 0.4); }
+        .error-box .error-icon { font-size: 20px; flex-shrink: 0; }
+        .error-box .error-text { font-size: 13px; color: #991B1B; line-height: 1.5; }
+        .dark-theme .error-box .error-text { color: #FCA5A5; }
     </style>
 </head>
 <body>
@@ -474,27 +516,75 @@
         saveSetting('selectedGame', game);
     }
 
+    // Hàm áp dụng đã được nâng cấp (Kiểm tra lỗi)
     function startApplying() {
-        switchPage('loading');
-        
         const sens = parseInt(slider.value);
         const ds = calculateDownscale(sens);
-        
-        // Xác định tên gói dựa trên game đã chọn
         const gamePackage = selectedGame === 'FFMAX' ? 'com.dts.freefiremax' : 'com.dts.freefireth';
-        
+
+        if (window.AndroidBridge && window.AndroidBridge.checkShizukuPermission) {
+            if (!window.AndroidBridge.checkShizukuPermission()) {
+                showError('Bạn chưa cấp quyền Shizuku cho app. Hãy mở app Shizuku và cấp quyền.');
+                return;
+            }
+        }
+
+        if (window.AndroidBridge && window.AndroidBridge.isGameInstalled) {
+            if (!window.AndroidBridge.isGameInstalled(gamePackage)) {
+                const gameName = selectedGame === 'FFMAX' ? 'Free Fire Max' : 'Free Fire';
+                showError(`Game ${gameName} chưa được cài trên máy. Vui lòng cài game trước.`);
+                return;
+            }
+        }
+
+        switchPage('loading');
+
         if (window.AndroidBridge) {
             window.AndroidBridge.applySensitivity(sens, ds, gamePackage);
         } else {
-            setTimeout(() => {
-                switchPage('success');
-            }, 2500);
+            setTimeout(() => { switchPage('success'); }, 2500);
         }
     }
 
-    function onApplySuccess(output) {
-        console.log("Shell Output: " + output);
+    // Hàm xử lý khi thành công
+    function onApplySuccess() {
+        console.log("Shell: Thành công thật sự!");
         switchPage('success');
+    }
+
+    // Hàm xử lý khi thất bại (Mới)
+    function onApplyFail(reason) {
+        console.log("Shell: Thất bại - " + reason);
+        switchPage('home');
+        let msg = '';
+        if (reason === 'shizuku_denied') {
+            msg = 'Bạn chưa cấp quyền Shizuku cho app. Hãy mở app Shizuku và cấp quyền rồi thử lại.';
+        } else if (reason === 'game_not_installed') {
+            const gameName = selectedGame === 'FFMAX' ? 'Free Fire Max' : 'Free Fire';
+            msg = `Game ${gameName} chưa được cài trên máy. Vui lòng cài game trước khi áp dụng.`;
+        } else if (reason === 'cmd_failed') {
+            msg = 'Máy của bạn không hỗ trợ lệnh này. Có thể do dòng máy chặn hoặc game không tương thích.';
+        } else {
+            msg = 'Có lỗi xảy ra trong quá trình áp dụng. Vui lòng thử lại.';
+        }
+        showError(msg);
+    }
+
+    // Hàm hiển thị thông báo lỗi (Mới)
+    function showError(message) {
+        const oldBox = document.querySelector('.error-box');
+        if (oldBox) oldBox.remove();
+        const errorBox = document.createElement('div');
+        errorBox.className = 'error-box';
+        errorBox.innerHTML = `<div class="error-icon">⚠️</div><div class="error-text">${message}</div>`;
+        document.querySelector('.app-container').appendChild(errorBox);
+        setTimeout(() => {
+            if (errorBox.parentNode) {
+                errorBox.style.transition = 'opacity 0.3s';
+                errorBox.style.opacity = '0';
+                setTimeout(() => errorBox.remove(), 300);
+            }
+        }, 6000);
     }
 
     function requestShizuku() {
@@ -561,4 +651,4 @@
 </script>
 
 </body>
-    </html>
+                    </html>
