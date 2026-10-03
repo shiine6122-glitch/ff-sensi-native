@@ -525,7 +525,29 @@
         window.scrollTo(0, 0);
     }
 
-    window.addEventListener('DOMContentLoaded', loadSettings);
+    // Xử lý chọn video làm hình nền
+document.getElementById('video-picker').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+        const videoUrl = URL.createObjectURL(file);
+        const bgVideo = document.getElementById('bg-video');
+        bgVideo.src = videoUrl;
+        bgVideo.style.display = 'block';
+        
+        document.body.style.background = 'transparent';
+        document.documentElement.style.setProperty('--bg-color', 'transparent');
+        
+        localStorage.setItem('useVideoBg', 'true');
+        alert('Đã đặt video làm hình nền! (Lưu ý: Video sẽ mất khi tắt app do giới hạn của WebView)');
+    }
+});
+
+function loadVideoBg() {
+    const useVideo = localStorage.getItem('useVideoBg');
+    if (useVideo === 'true') {
+        console.log("Người dùng đã từng chọn video làm nền.");
+    }
+    }window.addEventListener('DOMContentLoaded', loadSettings);
 </script>
 
 </body>
