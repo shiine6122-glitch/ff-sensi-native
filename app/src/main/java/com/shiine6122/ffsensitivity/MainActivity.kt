@@ -100,7 +100,10 @@ class MainActivity : AppCompatActivity() {
         (getSystemService(NOTIFICATION_SERVICE) as NotificationManager).notify(1, n)
     }
 
-    // ===== HÀM TÍNH DOWNSCALE =====
+    // ===== CÔNG THỨC DOWNSCALE ĐÚNG NHƯ BẠN GỬI =====
+    // Mặc định 200 = 1.0
+    // Mỗi 10 đơn vị tăng thêm 0.031265822784810126
+    // Max 1000 = ~3.5
     private fun calculateDownscale(sens: Int): String {
         if (sens <= 200) return "1.0000"
         val steps = (sens - 200).toDouble() / 10
@@ -108,7 +111,7 @@ class MainActivity : AppCompatActivity() {
         return String.format(java.util.Locale.US, "%.4f", if (ds > 3.5) 3.5 else ds)
     }
 
-    // ===== CHẠY SCRIPT - CÓ CẢ CMD GAME SET VÀ DOWNSCALE =====
+    // ===== SCRIPT CHẠY - ĐÚNG CODE BẠN GỬI =====
     private fun runShell(sens: Int, gamePackage: String) {
         if (Shizuku.checkSelfPermission() != PackageManager.PERMISSION_GRANTED) {
             runOnUiThread { webView.evaluateJavascript("onApplyFail('shizuku_denied');", null) }
@@ -117,10 +120,15 @@ class MainActivity : AppCompatActivity() {
 
         val ds = calculateDownscale(sens)
 
+        // Script đúng như bạn gửi - có 4 fallback cho HZ detection
         val script = """
 DS=$ds
-HZ=${'$'}(dumpsys display 2>/dev/null | grep -oE "vsyncRate [0-9]+" | head -1 | grep -oE "[0-9]+")
-[ -z "${'$'}HZ" ] && HZ=90
+
+CURRENT_HZ=${'$'}(dumpsys display 2>/dev/null | grep -oE "vsyncRate [0-9]+" | head -1 | grep -oE "[0-9]+")
+[ -z "${'$'}CURRENT_HZ" ] && CURRENT_HZ=${'$'}(dumpsys display 2>/dev/null | grep -oE "fps=[0-9]+" | head -1 | grep -oE "[0-9]+")
+[ -z "${'$'}CURRENT_HZ" ] && CURRENT_HZ=${'$'}(dumpsys SurfaceFlinger 2>/dev/null | grep -oE "refresh-rate [0-9]+" | head -1 | grep -oE "[0-9]+")
+[ -z "${'$'}CURRENT_HZ" ] && CURRENT_HZ=${'$'}(settings get system peak_refresh_rate 2>/dev/null | cut -d '.' -f 1)
+[ -z "${'$'}CURRENT_HZ" ] && CURRENT_HZ=90
 
 settings put system touchboost 1
 settings put system touch_prediction 1
@@ -142,10 +150,13 @@ settings put system touch_self_calibration 1
 settings put system show_touches 0
 settings put system pointer_speed 7
 
-cmd game set --mode 2 --downscale ${'$'}DS --fps ${'$'}HZ ${'$'}gamePackage > /dev/null 2>&1
-cmd power set-fixed-performance-mode-enabled true > /dev/null 2>&1
+cmd game set --mode 2 --downscale ${'$'}DS --fps ${'$'}CURRENT_HZ ${'$'}gamePackage
 
-echo "DONE"
+cmd power set-fixed-performance-mode-enabled true 2>/dev/null
+
+echo "NHAYX2"
+echo "THANH CONG"
+echo "Hz: ${'$'}CURRENT_HZ | FPS: ${'$'}CURRENT_HZ | DS: ${'$'}DS"
         """.trimIndent()
 
         try {
@@ -156,10 +167,10 @@ echo "DONE"
             while (r.readLine().also { line = it } != null) sb.append(line).append("\n")
             p.waitFor()
 
-            // LUÔN BÁO THÀNH CÔNG - Không check exit code nữa
+            // Luôn báo thành công - không check exit code
             runOnUiThread {
                 notify(sens)
-                webView.evaluateJavascript("onApplySuccess('DS=$ds');", null)
+                webView.evaluateJavascript("onApplySuccess('DS=$ds | Game=$gamePackage');", null)
             }
         } catch (e: Exception) {
             runOnUiThread { webView.evaluateJavascript("onApplyFail('exception');", null) }
