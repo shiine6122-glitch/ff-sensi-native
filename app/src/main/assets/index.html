@@ -27,7 +27,28 @@
             --primary-btn-text: #FFFFFF;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+        /* ===== FIX 3: BỎ HIGHLIGHT XANH KHI BẤM ===== */
+        * { 
+            box-sizing: border-box; 
+            margin: 0; 
+            padding: 0; 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+            outline: none;
+        }
+        
+        *:focus, *:active, *:hover {
+            outline: none !important;
+            -webkit-tap-highlight-color: transparent !important;
+        }
+        
+        button, input, .toggle, .game-btn, .main-btn, .action-btn, .shizuku-btn, .quick-btn, a {
+            -webkit-tap-highlight-color: transparent !important;
+            outline: none !important;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+        }
         
         html, body { 
             background: var(--bg-color); 
@@ -55,16 +76,17 @@
         
         .app-container { width: 100%; max-width: 480px; padding: 20px 20px 80px 20px; position: relative; z-index: 1; }
         
-        /* ========== QUY CHUẨN CHUNG - TẤT CẢ THẺ CAO BẰNG NHAU ========== */
+        /* ===== FIX 2: TẤT CẢ THẺ RỘNG 100% ĐỒNG BỘ ===== */
         .card, 
         .info-item, 
         .setting-link, 
         .game-option { 
+            width: 100%;
             background: var(--card-bg); 
             backdrop-filter: blur(15px);
             -webkit-backdrop-filter: blur(15px);
             border-radius: 18px; 
-            padding: 18px 18px; 
+            padding: 18px; 
             margin-bottom: 14px; 
             border: 1px solid var(--card-border); 
             min-height: 92px;
@@ -91,7 +113,7 @@
             cursor: pointer;
         }
         
-        /* ========== HEADER ========== */
+        /* ===== HEADER ===== */
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         .header h1 { font-size: 24px; font-weight: 800; text-align: center; }
         .header h2 { font-size: 22px; font-weight: 700; text-align: center; }
@@ -101,7 +123,7 @@
         .page-header .back { font-size: 24px; margin-right: 16px; cursor: pointer; }
         .page-header h2 { font-size: 22px; font-weight: 700; }
         
-        /* ========== GAME SELECTOR ========== */
+        /* ===== GAME SELECTOR ===== */
         .game-selector { display: flex; gap: 10px; margin-bottom: 14px; }
         .game-btn { 
             flex: 1; padding: 16px 12px; border-radius: 14px; 
@@ -115,7 +137,7 @@
         }
         .game-btn.active { background: var(--primary-btn); color: var(--primary-btn-text); border-color: transparent; }
         
-        /* ========== SLIDER ========== */
+        /* ===== SLIDER ===== */
         .slider-label { font-size: 15px; color: var(--text-secondary); font-weight: 600; }
         .slider-value { font-size: 42px; font-weight: 800; display: flex; align-items: flex-end; gap: 8px; margin-top: 4px; }
         .slider-value span { font-size: 14px; color: var(--text-secondary); font-weight: 500; margin-bottom: 8px; }
@@ -124,7 +146,42 @@
         input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 26px; width: 26px; border-radius: 50%; background: var(--primary-btn); margin-top: -9px; box-shadow: 0 0 10px rgba(0,0,0,0.3); }
         .slider-range { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-secondary); font-weight: 600; }
         
-        /* ========== NÚT CHÍNH ========== */
+        /* ===== FIX 1: ĐỘ NHẠY KHUYÊN DÙNG ===== */
+        .recommend-label { 
+            font-size: 15px; 
+            color: var(--text-secondary); 
+            font-weight: 600; 
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .quick-select { 
+            display: flex; 
+            gap: 12px; 
+            width: 100%;
+        }
+        .quick-btn { 
+            flex: 1;
+            padding: 16px 20px; 
+            border-radius: 14px; 
+            border: 2px solid var(--border-color); 
+            background: rgba(255,255,255,0.05);
+            color: var(--text-color); 
+            font-size: 18px; 
+            font-weight: 800; 
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s;
+        }
+        .quick-btn.active { 
+            background: var(--primary-btn); 
+            color: var(--primary-btn-text); 
+            border-color: transparent;
+            transform: scale(1.02);
+        }
+        
+        /* ===== NÚT CHÍNH ===== */
         .main-btn { 
             width: 100%; height: 60px; border: none; border-radius: 18px; 
             background: var(--primary-btn);
@@ -138,36 +195,40 @@
             border: 1px solid var(--card-border);
         }
         
-        /* ========== GAME OPTION ========== */
+        /* ===== GAME OPTION ===== */
         .game-option.active { border-color: var(--primary-btn); }
         .radio-circle { width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--border-color); position: relative; flex-shrink: 0; }
         .game-option.active .radio-circle { border-color: var(--primary-btn); }
         .game-option.active .radio-circle::after { content: ''; position: absolute; width: 12px; height: 12px; background: var(--primary-btn); border-radius: 50%; top: 50%; left: 50%; transform: translate(-50%, -50%); }
         
-        /* ========== LOADING ========== */
+        /* ===== LOADING ===== */
         .loading-container { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 60vh; text-align: center; }
         .spinner { width: 80px; height: 80px; border: 6px solid var(--border-color); border-top: 6px solid var(--primary-btn); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 24px; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         
-        /* ========== SUCCESS ========== */
+        /* ===== SUCCESS ===== */
         .success-container { display: flex; flex-direction: column; align-items: center; padding-top: 40px; }
         .success-icon { width: 80px; height: 80px; border-radius: 50%; border: 4px solid var(--primary-btn); display: flex; align-items: center; justify-content: center; margin-bottom: 20px; background: var(--card-bg); backdrop-filter: blur(15px); }
         .success-icon svg { width: 40px; height: 40px; fill: var(--primary-btn); }
         .success-text { text-align: center; margin-bottom: 30px; }
         
-        /* ========== INFO ITEM INTERNAL ========== */
+        /* ===== FIX 4: ICON SVG STYLE ===== */
         .info-item-left { display: flex; align-items: center; gap: 14px; flex: 1; min-width: 0; }
         .info-icon { 
             width: 48px; 
             height: 48px; 
-            background: var(--bg-color); 
+            background: #0A0D14;
             border-radius: 50%; 
             display: flex; 
             align-items: center; 
             justify-content: center; 
-            font-size: 22px; 
-            opacity: 0.9; 
             flex-shrink: 0; 
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+        .info-icon svg {
+            width: 26px;
+            height: 26px;
+            fill: #FFFFFF;
         }
         
         .info-item h3, 
@@ -187,13 +248,13 @@
             line-height: 1.3;
         }
         
-        /* ========== TOGGLE ========== */
+        /* ===== TOGGLE ===== */
         .toggle { width: 54px; height: 30px; background: var(--border-color); border-radius: 15px; position: relative; cursor: pointer; transition: 0.3s; flex-shrink: 0; }
         .toggle.active { background: var(--primary-btn); }
         .toggle::after { content: ''; position: absolute; width: 26px; height: 26px; background: rgba(255,255,255,0.95); border-radius: 50%; top: 2px; left: 2px; transition: 0.3s; box-shadow: 0 2px 4px rgba(0,0,0,0.15); }
         .toggle.active::after { left: 26px; }
         
-        /* ========== BOTTOM NAV ========== */
+        /* ===== BOTTOM NAV ===== */
         .bottom-nav { 
             position: fixed; bottom: 0; left: 0; right: 0; 
             background: var(--card-bg);
@@ -207,11 +268,11 @@
         .nav-item.active { color: var(--primary-btn); }
         .nav-item i { font-size: 22px; margin-bottom: 4px; font-style: normal; }
         
-        /* ========== PAGES ========== */
+        /* ===== PAGES ===== */
         .page { display: none; }
         .page.active { display: block; }
         
-        /* ========== NÚT PHỤ - ĐÃ THU GỌN ĐỂ ĐẸP HƠN ========== */
+        /* ===== NÚT PHỤ ===== */
         .shizuku-btn { 
             background: rgba(16, 185, 129, 0.55);
             backdrop-filter: blur(10px);
@@ -246,10 +307,9 @@
             box-shadow: 0 2px 6px rgba(0,0,0,0.15);
         }
         
-        /* ========== Mũi tên chỉ ========== */
         .chevron { color: #9CA3AF; font-size: 20px; flex-shrink: 0; }
 
-        /* ========== ANIMATION ========== */
+        /* ===== ANIMATION ===== */
         @keyframes fadeInUp {
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
@@ -259,22 +319,16 @@
             50% { opacity: 1; transform: scale(1.05); }
             100% { opacity: 1; transform: scale(1); }
         }
-        @keyframes ripple {
-            0% { transform: scale(0); opacity: 0.6; }
-            100% { transform: scale(4); opacity: 0; }
-        }
         .page.active { animation: fadeInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
         .card, .info-item, .game-option, .setting-link { animation: fadeInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) backwards; }
-        .main-btn, .action-btn, .shizuku-btn, .game-btn { transition: transform 0.15s ease, box-shadow 0.2s ease; position: relative; overflow: hidden; }
-        .main-btn:active, .action-btn:active, .shizuku-btn:active, .game-btn:active { transform: scale(0.96); }
-        .main-btn::after, .action-btn::after { content: ''; position: absolute; top: 50%; left: 50%; width: 100%; height: 100%; background: rgba(255,255,255,0.2); border-radius: 50%; transform: scale(0); opacity: 0; pointer-events: none; }
-        .main-btn:active::after, .action-btn:active::after { animation: ripple 0.6s ease-out; }
+        .main-btn, .action-btn, .shizuku-btn, .game-btn, .quick-btn { transition: transform 0.15s ease, box-shadow 0.2s ease; }
+        .main-btn:active, .action-btn:active, .shizuku-btn:active, .game-btn:active, .quick-btn:active { transform: scale(0.96); }
         .success-icon { animation: popIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); }
         .success-icon svg { animation: popIn 0.5s 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) backwards; }
         input[type=range]::-webkit-slider-thumb { transition: transform 0.2s ease; }
         input[type=range]::-webkit-slider-thumb:active { transform: scale(1.2); }
         
-        /* ========== ERROR BOX ========== */
+        /* ===== ERROR BOX ===== */
         .error-box { 
             background: rgba(239, 68, 68, 0.15); 
             backdrop-filter: blur(15px);
@@ -319,12 +373,13 @@
             </div>
         </div>
 
-        <div class="setting-link" onclick="switchPage('choose')">
-            <div>
-                <h3 data-lang="game_settings">Cài đặt game</h3>
-                <p data-lang="game_desc">Tối ưu cho Free Fire / Free Fire Max</p>
+        <!-- FIX 1: Độ nhạy khuyên dùng -->
+        <div class="card">
+            <div class="recommend-label">⭐ <span data-lang="recommend_sens">Độ nhạy khuyên dùng</span></div>
+            <div class="quick-select">
+                <div class="quick-btn" onclick="setRecommendedSens(400, this)">400</div>
+                <div class="quick-btn" onclick="setRecommendedSens(450, this)">450</div>
             </div>
-            <div class="chevron">›</div>
         </div>
 
         <button class="main-btn" onclick="goToChooseGame()">
@@ -391,7 +446,9 @@
         
         <div class="info-item">
             <div class="info-item-left">
-                <div class="info-icon" style="background: var(--primary-btn); color: white;">⚡</div>
+                <div class="info-icon">
+                    <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.07.62-.07.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+                </div>
                 <div>
                     <h3>FF Sensitivity</h3>
                     <p>v1.0.0</p>
@@ -401,7 +458,9 @@
 
         <div class="info-item">
             <div class="info-item-left">
-                <div class="info-icon">🤖</div>
+                <div class="info-icon">
+                    <svg viewBox="0 0 24 24"><path d="M17.6 9.48l1.84-3.18c.16-.31.04-.69-.26-.85-.29-.15-.65-.06-.83.22l-1.88 3.24c-2.86-1.21-6.08-1.21-8.94 0L5.65 5.67c-.19-.29-.58-.38-.87-.19-.29.19-.38.58-.19.87l1.81 3.13C3.3 11.25 1.28 14.44 1 18h22c-.28-3.56-2.3-6.75-5.4-8.52zM7 15.25c-.69 0-1.25-.56-1.25-1.25s.56-1.25 1.25-1.25 1.25.56 1.25 1.25-.56 1.25-1.25 1.25zm10 0c-.69 0-1.25-.56-1.25-1.25s.56-1.25 1.25-1.25 1.25.56 1.25 1.25-.56 1.25-1.25 1.25z"/></svg>
+                </div>
                 <div>
                     <h3>Shizuku</h3>
                     <p style="color: #10B981 !important; font-weight: 600;">● <span data-lang="connected">Đã kết nối</span></p>
@@ -412,7 +471,9 @@
 
         <div class="info-item">
             <div class="info-item-left">
-                <div class="info-icon">🔒</div>
+                <div class="info-icon">
+                    <svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/></svg>
+                </div>
                 <div>
                     <h3 data-lang="access_rights">Quyền truy cập</h3>
                     <p data-lang="granted">Đã cấp (OK)</p>
@@ -424,7 +485,9 @@
         <a href="https://tiktok.com/@asenguyen_" target="_blank" style="text-decoration: none; color: inherit;">
             <div class="info-item">
                 <div class="info-item-left">
-                    <div class="info-icon">🎵</div>
+                    <div class="info-icon">
+                        <svg viewBox="0 0 24 24"><path d="M12.5 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6zm-2 14c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/></svg>
+                    </div>
                     <div>
                         <h3 data-lang="tiktok_link">Liên kết TikTok</h3>
                         <p style="color: #3B82F6 !important; text-decoration: underline;">tiktok.com/@asenguyen_</p>
@@ -444,7 +507,9 @@
 
         <div class="info-item">
             <div class="info-item-left">
-                <div class="info-icon">🌐</div>
+                <div class="info-icon">
+                    <svg viewBox="0 0 24 24"><path d="M12.87 15.07l-2.54-2.51.03-.03A17.52 17.52 0 0 0 14.07 6H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11.76-2.04zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2l-4.5-12zm-2.62 7l1.62-4.33L19.12 17h-3.24z"/></svg>
+                </div>
                 <div>
                     <h3 data-lang="language">Ngôn ngữ</h3>
                     <p id="current-lang-text">Tiếng Việt</p>
@@ -455,7 +520,9 @@
 
         <div class="info-item">
             <div class="info-item-left">
-                <div class="info-icon">🎨</div>
+                <div class="info-icon">
+                    <svg viewBox="0 0 24 24"><path d="M18 4V3c0-.55-.45-1-1-1H5c-.55 0-1 .45-1 1v4c0 .55.45 1 1 1h12c.55 0 1-.45 1-1V6h1v4H9v11c0 .55.45 1 1 1h2c.55 0 1-.45 1-1v-9h8V4h-3z"/></svg>
+                </div>
                 <div>
                     <h3 data-lang="theme">Chủ đề</h3>
                     <p data-lang="theme_desc">Sáng / Tối</p>
@@ -466,7 +533,9 @@
 
         <div class="info-item">
             <div class="info-item-left">
-                <div class="info-icon">🎥</div>
+                <div class="info-icon">
+                    <svg viewBox="0 0 24 24"><path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/></svg>
+                </div>
                 <div>
                     <h3>Hình nền Video</h3>
                     <p>Chọn video từ thư viện</p>
@@ -478,7 +547,9 @@
 
         <div class="info-item">
             <div class="info-item-left">
-                <div class="info-icon">ℹ️</div>
+                <div class="info-icon">
+                    <svg viewBox="0 0 24 24"><path d="M3 3h8v8H3V3zm0 10h8v8H3v-8zm10-10h8v8h-8V3zm10 10h-2v2h2v-2zm-8 0h2v2h-2v-2zm2 2h2v2h-2v-2zm-2 2h2v2h-2v-2zm2 2h2v2h-2v-2zm-2 2h2v2h-2v-2zm2 2h2v2h-2v-2z"/></svg>
+                </div>
                 <div>
                     <h3 data-lang="app_info">Thông tin ứng dụng</h3>
                     <p data-lang="app_info_desc">Phiên bản, điều khoản</p>
@@ -524,8 +595,8 @@
     const translations = {
         vi: {
             app_name: "FF Sensitivity", warning: "*Lưu ý: đây không phải phần mềm thứ 3 nên không có nguy cơ khóa acc",
-            current_sens: "Độ nhạy hiện tại", custom: "(Tùy chỉnh)", game_settings: "Cài đặt game",
-            game_desc: "Tối ưu cho Free Fire / Free Fire Max", apply: "Áp dụng", choose_game: "Chọn game",
+            current_sens: "Độ nhạy hiện tại", custom: "(Tùy chỉnh)", recommend_sens: "Độ nhạy khuyên dùng",
+            apply: "Áp dụng", choose_game: "Chọn game",
             continue: "Tiếp tục", applying: "Đang áp dụng...", wait: "Vui lòng chờ trong giây lát",
             success: "Đã áp dụng thành công!", sens_set_to: "Độ nhạy cảm ứng đã được đặt thành",
             info: "Thông tin", connected: "Đã kết nối", access_rights: "Quyền truy cập", granted: "Đã cấp (OK)",
@@ -535,8 +606,8 @@
         },
         en: {
             app_name: "FF Sensitivity", warning: "*Note: This is not 3rd party software, no risk of account ban",
-            current_sens: "Current Sensitivity", custom: "(Custom)", game_settings: "Game Settings",
-            game_desc: "Optimized for Free Fire / Free Fire Max", apply: "Apply", choose_game: "Choose Game",
+            current_sens: "Current Sensitivity", custom: "(Custom)", recommend_sens: "Recommended Sensitivity",
+            apply: "Apply", choose_game: "Choose Game",
             continue: "Continue", applying: "Applying...", wait: "Please wait a moment",
             success: "Applied Successfully!", sens_set_to: "Touch sensitivity has been set to",
             info: "Information", connected: "Connected", access_rights: "Access Rights", granted: "Granted (OK)",
@@ -571,7 +642,27 @@
             slider.value = savedSens;
             currentVal.innerText = savedSens;
             successVal.innerText = savedSens;
+            updateQuickBtnHighlight();
         }
+    }
+
+    function updateQuickBtnHighlight() {
+        const sens = parseInt(slider.value);
+        document.querySelectorAll('.quick-btn').forEach(btn => {
+            if (parseInt(btn.innerText) === sens) {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+            }
+        });
+    }
+
+    function setRecommendedSens(value, element) {
+        slider.value = value;
+        currentVal.innerText = value;
+        successVal.innerText = value;
+        saveSetting('sensitivity', value);
+        updateQuickBtnHighlight();
     }
 
     function toggleLanguage() {
@@ -600,6 +691,7 @@
         currentVal.innerText = sens;
         successVal.innerText = sens;
         saveSetting('sensitivity', sens);
+        updateQuickBtnHighlight();
     });
 
     function selectGame(game, element) {
@@ -731,6 +823,7 @@
 
     window.addEventListener('DOMContentLoaded', function() {
         loadSettings();
+        updateQuickBtnHighlight();
         
         if (window.AndroidBridge && window.AndroidBridge.getSavedVideoPath) {
             const savedPath = window.AndroidBridge.getSavedVideoPath();
@@ -745,4 +838,4 @@
 </script>
 
 </body>
-                    </html>
+</html>
