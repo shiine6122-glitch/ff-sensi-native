@@ -118,16 +118,16 @@
             50% { transform: scale(1.05); }
         }
         
-        /* ===== CONTAINER RỘNG HƠN ===== */
+        /* ===== CONTAINER ===== */
         .app-container { 
             width: 100%; 
             max-width: 480px; 
-            padding: 16px 10px 80px 10px; 
+            padding: 16px 12px 80px 12px; 
             position: relative; 
             z-index: 1; 
         }
         
-        /* ===== THẺ RỘNG GẦN MÉP ===== */
+        /* ===== THẺ ===== */
         .card, 
         .info-item, 
         .setting-link, 
@@ -183,7 +183,7 @@
         /* ===== GAME SELECTOR ===== */
         .game-selector { display: flex; gap: 8px; margin-bottom: 12px; }
         .game-btn { 
-            flex: 1; padding: 16px 10px; border-radius: 14px; 
+            flex: 1; padding: 18px 10px; border-radius: 14px; 
             border: 2px solid var(--border-color); 
             background: var(--card-bg);
             backdrop-filter: blur(15px);
@@ -191,7 +191,7 @@
             color: var(--text-color); 
             text-align: center; font-weight: 700; font-size: 14px; 
             cursor: pointer; transition: all 0.2s;
-            min-height: 60px;
+            min-height: 62px;
             display: flex; align-items: center; justify-content: center; gap: 6px;
         }
         .game-btn.active { background: var(--primary-btn); color: var(--primary-btn-text); border-color: transparent; }
@@ -218,17 +218,17 @@
         .quick-select { display: flex; gap: 10px; width: 100%; }
         .quick-btn { 
             flex: 1;
-            padding: 16px 18px; 
+            padding: 18px 18px; 
             border-radius: 14px; 
             border: 2px solid var(--border-color); 
             background: rgba(255,255,255,0.05);
             color: var(--text-color); 
-            font-size: 20px; 
+            font-size: 22px; 
             font-weight: 800; 
             cursor: pointer;
             text-align: center;
             transition: all 0.2s;
-            min-height: 60px;
+            min-height: 62px;
             display: flex; align-items: center; justify-content: center;
         }
         .quick-btn.active { 
@@ -262,7 +262,7 @@
         .success-icon svg { width: 40px; height: 40px; fill: var(--primary-btn); }
         .success-text { text-align: center; margin-bottom: 30px; }
         
-        /* ===== INFO ICON - ĐÃ BỎ NỀN ĐEN ===== */
+        /* ===== INFO ICON ===== */
         .info-item-left { display: flex; align-items: center; gap: 14px; flex: 1; min-width: 0; }
         .info-icon { 
             width: 40px; 
@@ -280,7 +280,6 @@
         .dark-theme .info-icon svg {
             fill: #FFFFFF;
         }
-        /* Sáng theme dùng icon đen */
         body:not(.dark-theme) .info-icon svg {
             fill: #4F46E5;
         }
@@ -326,22 +325,27 @@
         .page { display: none; }
         .page.active { display: block; }
         
-        /* ===== NÚT PHỤ ===== */
+        /* ===== NÚT PHỤ - ĐÃ PHÓNG TO BẰNG NÚT ÁP DỤNG ===== */
         .shizuku-btn { 
             background: rgba(16, 185, 129, 0.55);
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
             color: white; 
-            padding: 12px 18px; 
-            border-radius: 12px; 
-            font-size: 13px; 
+            padding: 0 24px; 
+            border-radius: 14px; 
+            font-size: 15px; 
             border: 1px solid rgba(255,255,255,0.15); 
             font-weight: 700; 
             cursor: pointer; 
             flex-shrink: 0;
             text-align: center;
             white-space: nowrap;
-            box-shadow: 0 2px 6px rgba(16, 185, 129, 0.2);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+            height: 56px;
+            min-width: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         
         .action-btn { 
@@ -349,16 +353,21 @@
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
             color: white; 
-            padding: 12px 18px; 
-            border-radius: 12px; 
-            font-size: 13px; 
+            padding: 0 24px; 
+            border-radius: 14px; 
+            font-size: 15px; 
             border: 1px solid var(--card-border); 
             font-weight: 700; 
             cursor: pointer; 
             flex-shrink: 0;
             text-align: center;
             white-space: nowrap;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            height: 56px;
+            min-width: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         
         .chevron { color: #9CA3AF; font-size: 22px; flex-shrink: 0; }
@@ -855,7 +864,6 @@
         loadSettings();
         updateQuickBtnHighlight();
         
-        // Tự động tắt splash sau 2 giây
         setTimeout(() => {
             const splash = document.getElementById('splash-screen');
             if (splash) splash.classList.add('hidden');
@@ -874,4 +882,4 @@
 </script>
 
 </body>
-</html>
+    </html>
